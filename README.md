@@ -2,151 +2,65 @@
 
 ## Project Overview
 
-This portfolio project demonstrates how to deploy and verify foundational AWS security controls using Terraform and the AWS CLI.
+This project demonstrates the use of Terraform to deploy and manage secure cloud infrastructure on Amazon Web Services (AWS).
 
-The goal is to apply Infrastructure as Code (IaC) practices to build secure cloud resources in a repeatable, documented way.
+The goal is to apply Infrastructure as Code (IaC) principles to implement foundational cloud security controls and document their configuration.
+
+## Technologies Used
+
+- **Amazon Web Services (AWS):** Cloud infrastructure
+- **Amazon S3:** Secure object storage
+- **Terraform:** Infrastructure as Code
+- **AWS CLI:** Cloud resource verification
+- **Git and GitHub:** Version control and project documentation
 
 ## Architecture
 
-- **Cloud Provider:** Amazon Web Services (AWS)
+- **Cloud Provider:** Amazon Web Services
 - **Region:** US East (Ohio) — `us-east-2`
-- **Infrastructure as Code:** Terraform
-- **Storage:** Amazon S3
-- **Verification:** AWS CLI
-- **Version Control:** Git and GitHub
+- **Infrastructure:** Terraform-managed Amazon S3 bucket
+- **Security Focus:** Data protection, access control, encryption, and recoverability
 
 ## Security Controls Implemented
 
-### 1. S3 Public Access Protection
+### S3 Public Access Protection
 
-Configured all four S3 Block Public Access settings to prevent public access through bucket policies and access control lists (ACLs).
+Configured all four S3 Block Public Access settings to help prevent unintended public exposure of stored data.
 
-### 2. Encryption at Rest
+### Encryption at Rest
 
-Configured default server-side encryption using Amazon S3-managed keys (SSE-S3, AES-256).
+Enabled default server-side encryption using Amazon S3-managed keys (SSE-S3) with AES-256 encryption.
 
-### 3. Bucket Versioning
+### Bucket Versioning
 
 Enabled S3 versioning to preserve previous object versions and support recovery from certain accidental changes or deletions.
 
-### 4. Infrastructure as Code
+### Infrastructure as Code
 
-Used Terraform to define, validate, plan, deploy, and manage AWS infrastructure.
+Defined AWS resources using Terraform to make infrastructure deployment repeatable, consistent, and easier to manage.
 
 ## Repository Structure
 
-```text
-.
-├── terraform/
-│   ├── main.tf
-│   ├── variables.tf
-│   ├── outputs.tf
-│   └── .terraform.lock.hcl
-├── scripts/
-├── .github/
-├── .gitignore
-└── README.md
-```
+- `terraform/main.tf` — AWS provider configuration and S3 security resources
+- `terraform/variables.tf` — Configurable project settings
+- `terraform/outputs.tf` — Project information outputs
+- `terraform/.terraform.lock.hcl` — Locked Terraform provider selections
+- `.gitignore` — Excludes local and sensitive files from version control
+- `README.md` — Project documentation
 
-## Deployment
-
-### Prerequisites
-
-- Terraform installed
-- AWS CLI installed
-- An AWS account with appropriate permissions
-- AWS authentication configured locally
-
-### Initialize Terraform
-
-From the project root, navigate to the Terraform directory:
-
-```powershell
-cd terraform
-```
-
-Initialize Terraform and validate the configuration:
-
-```powershell
-terraform init
-terraform validate
-```
-
-### Plan and Deploy
-
-Preview the proposed infrastructure changes:
-
-```powershell
-terraform plan
-```
-
-Review the plan before deploying:
-
-```powershell
-terraform apply
-```
-
-Review all proposed changes before approving `terraform apply`. These commands can create real AWS resources and may incur charges.
-
-## Security Verification
-
-Run these AWS CLI commands to verify the deployed bucket configuration:
-
-### Verify Public Access Protection
-
-```powershell
-aws s3api get-public-access-block --bucket aws-secure-cloud-portfolio-mh-2026
-```
-
-### Verify Encryption
-
-```powershell
-aws s3api get-bucket-encryption --bucket aws-secure-cloud-portfolio-mh-2026
-```
-
-### Verify Versioning
-
-```powershell
-aws s3api get-bucket-versioning --bucket aws-secure-cloud-portfolio-mh-2026
-```
-
-### Expected Results
-
-- All four public-access-block settings are `true`.
-- Default server-side encryption uses `AES256`.
-- Bucket versioning status is `Enabled`.
-
-## Security and Cost Considerations
+## Security Considerations
 
 - Terraform state files and local Terraform working directories are excluded from version control.
-- Never commit AWS credentials, access keys, session tokens, or other secrets.
-- AWS budgets and alerts help monitor costs but do not automatically stop all spending.
-- S3 storage, requests, and retained object versions may incur charges.
+- AWS credentials and other sensitive information should never be committed to the repository.
+- AWS budgets and alerts help monitor spending but do not automatically prevent charges.
+- S3 storage, requests, and retained object versions may incur costs.
 
 ## Future Enhancements
 
-- Implement least-privilege IAM policies and roles.
-- Add automated security checks using GitHub Actions.
-- Add logging and monitoring controls.
-- Expand the infrastructure with additional security-focused resources.
-
-## Cleanup
-
-When you no longer need the lab, you can remove the Terraform-managed resources.
-
-From the `terraform` directory, review the resources that will be deleted:
-
-```powershell
-terraform plan -destroy
-```
-
-If you intentionally want to remove the infrastructure, run:
-
-```powershell
-terraform destroy
-```
-
-Review the proposed deletions before confirming. This may permanently delete resources or data managed by Terraform.
+- Implement least-privilege AWS IAM policies and roles.
+- Introduce automated security checks through GitHub Actions.
+- Expand logging, monitoring, and security auditing capabilities.
+- Add additional cloud security controls and document their effectiveness.
 
 ## Skills Demonstrated
 
