@@ -1,28 +1,27 @@
-# ☁️ AWS Secure Cloud Infrastructure Automation
+# 🔐 AWS Secure Cloud Infrastructure Automation
 
-## 🎯 Project Overview
+## 📌 Project Overview
 
-This project demonstrates how to provision and secure AWS infrastructure using Terraform and implement least-privilege access controls with AWS Identity and Access Management (IAM).
+This project demonstrates foundational AWS cloud security practices using Terraform, AWS IAM, Amazon S3, Python, and Boto3.
 
-The project focuses on foundational cloud security practices, including secure Amazon S3 configuration, encryption at rest, versioning, and permission testing through hands-on labs.
+The goal is to deploy secure cloud infrastructure through Infrastructure as Code (IaC), implement least-privilege access controls, and automate basic IAM security auditing.
 
 ## 🛠️ Technologies Used
 
 - **Amazon Web Services (AWS):** Cloud infrastructure
 - **Amazon S3:** Secure object storage
 - **AWS IAM:** Identity and access management
-- **Terraform:** Infrastructure as Code (IaC)
-- **AWS IAM Policy Simulator:** Permission testing and troubleshooting
+- **Terraform:** Infrastructure as Code
+- **Python and Boto3:** AWS security auditing automation
 - **AWS CLI:** Cloud resource verification
-- **Git and GitHub:** Version control and documentation
+- **Git and GitHub:** Version control and project documentation
 
-## Architecture
+## 🏗️ Architecture
 
 - **Cloud Provider:** Amazon Web Services
 - **Region:** US East (Ohio) — `us-east-2`
-- **Infrastructure:** Terraform-managed Amazon S3 bucket
-- **Access Control:** IAM read-only policy
-- **Security Focus:** Data protection, least privilege, encryption, and recoverability
+- **Infrastructure:** Terraform-managed S3 bucket
+- **Security Focus:** Data protection, least privilege, encryption, versioning, and IAM auditing
 
 ## 🔒 Security Controls Implemented
 
@@ -32,61 +31,88 @@ Configured all four Amazon S3 Block Public Access settings to help prevent unint
 
 ### 2. Encryption at Rest
 
-Configured default server-side encryption using Amazon S3-managed keys (SSE-S3) with AES-256 encryption.
+Enabled default server-side encryption using Amazon S3-managed keys (SSE-S3) with AES-256 encryption.
 
 ### 3. Bucket Versioning
 
 Enabled S3 versioning to preserve previous object versions and support recovery from certain accidental changes or deletions.
 
-### 4. Infrastructure as Code
+### 4. IAM Least-Privilege Access
 
-Defined AWS resources using Terraform to make infrastructure deployment repeatable, consistent, and easier to manage.
+Created a test IAM user and attached a custom managed policy named `PortfolioS3ReadOnly`.
 
-### 5. IAM Least-Privilege Access
+The policy grants:
+- `s3:ListBucket` access to the designated portfolio bucket.
+- `s3:GetObject` access to objects within that bucket.
 
-Created an IAM policy named `PortfolioS3ReadOnly` for the test user `portfolio-s3-readonly-test`.
+Permissions are scoped to the specific bucket rather than granting broad S3 access.
 
-The policy is designed to allow read access to the designated S3 bucket while withholding unnecessary write and deletion permissions.
+### 5. Automated IAM Security Auditing
 
-**IAM Policy Simulator Results**
+Developed Python scripts using Boto3 to inspect AWS IAM configuration.
 
-| S3 Action | Expected Result | Observed Result |
-|---|---|---|
-| `s3:ListBucket` | Allow | Allowed |
-| `s3:GetObject` | Allow | Allowed |
-| `s3:PutObject` | Deny | Denied |
-| `s3:DeleteBucket` | Deny | Denied |
+**IAM User Inventory (`list_iam_users.py`)**
+- Enumerates IAM users using pagination.
+- Reports user creation dates.
+- Identifies access keys and their status.
+- Flags access keys older than 90 days.
+- Retrieves access-key last-used information.
+- Lists attached managed policies and their permission documents.
+- Identifies inline IAM policies.
 
-The simulator identified an AWS Organizations Service Control Policy (SCP) restriction during testing. The IAM policy was evaluated separately from that restriction to isolate its permissions.
-
-These results demonstrate the evaluated IAM permissions. They do not, by themselves, verify successful or denied requests made by the test user against the live S3 bucket.
+**IAM MFA Audit (`audit_iam_mfa.py`)**
+- Retrieves the AWS account-level MFA summary.
+- Enumerates IAM users using pagination.
+- Checks whether MFA devices are assigned to IAM users.
 
 ## 📁 Repository Structure
 
-- `terraform/main.tf` — AWS provider configuration and S3 security resources
-- `terraform/variables.tf` — Configurable project settings
-- `terraform/outputs.tf` — Project information outputs
-- `terraform/.terraform.lock.hcl` — Locked Terraform provider selections
-- `.gitignore` — Excludes local and sensitive files from version control
-- `README.md` — Project documentation
+```text
+AWS-secure-cloud-infrastructure-automation/
+│
+├── .github/
+├── scripts/
+│   ├── list_iam_users.py
+│   └── audit_iam_mfa.py
+│
+├── terraform/
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   └── .terraform.lock.hcl
+│
+├── .gitignore
+└── README.md
+```
 
-## Security Considerations
+## 📊 Audit Findings
 
-- Terraform state files and local Terraform working directories should remain excluded from version control.
-- AWS credentials, access keys, and other sensitive information must never be committed to the repository.
-- IAM permissions should follow the principle of least privilege.
-- AWS Organizations SCPs can impose restrictions beyond the permissions granted by IAM policies.
+The IAM inventory script successfully identified the portfolio test user and reported:
+
+- Zero access keys assigned.
+- One attached managed policy: `PortfolioS3ReadOnly`.
+- Bucket-scoped S3 list and object-read permissions.
+- No inline policies found.
+
+The MFA audit identified that no MFA device was assigned to the test IAM user.
+
+**Audit limitation:** The account-level MFA summary checks root-user MFA status; it does not verify MFA protection for an AWS Builder ID sign-in. These are separate authentication mechanisms.
+
+## ⚠️ Security Considerations
+
+- Terraform state files and local Terraform working directories are excluded from version control.
+- AWS credentials and sensitive variable files should never be committed to the repository.
+- IAM audit scripts perform read-only inspection and do not modify AWS resources.
 - AWS budgets and alerts help monitor spending but do not automatically prevent charges.
 - S3 storage, requests, and retained object versions may incur costs.
 
 ## 🚀 Future Enhancements
 
-- Validate IAM permissions through controlled tests using the actual test identity, where permitted.
-- Add automated infrastructure and security checks through GitHub Actions.
-- Expand logging, monitoring, and security auditing capabilities.
-- Document additional access-control scenarios and security validation results.
-- Explore automated Terraform validation and deployment workflows.
+- Add automated Terraform formatting and validation through GitHub Actions.
+- Integrate infrastructure security scanning into CI/CD.
+- Expand AWS logging, monitoring, and security auditing.
+- Explore additional cloud security services after evaluating costs and account feature availability.
 
-## Skills Demonstrated
+## 💻 Skills Demonstrated
 
-AWS | Amazon S3 | IAM | Least Privilege | Terraform | IaC | IAM Policy Simulation | AWS CLI | Cloud Security | Encryption | Access Control | Git | GitHub
+AWS | Amazon S3 | IAM | Terraform | Infrastructure as Code | Python | Boto3 | AWS CLI | Least Privilege | Cloud Security | Encryption | Git | GitHub
