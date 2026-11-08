@@ -14,6 +14,8 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "secure_storage" {
+  #checkov:skip=CKV_AWS_144:Lab project. Cross-region replication would double storage cost. Production would replicate to a second region.
+  #checkov:skip=CKV2_AWS_62:No downstream consumer of bucket events in this project.
   bucket = "aws-secure-cloud-portfolio-mh-2026"
 
   tags = {
@@ -49,4 +51,58 @@ resource "aws_s3_bucket_versioning" "secure_storage" {
   versioning_configuration {
     status = "Enabled"
   }
+}
+
+# Controls the storage cost of versioning: expires old versions and
+# cleans up failed multipart uploads. Current objects are left alone.
+resource "aws_s3_bucket_lifecycle_configuration" "secure_storage" {
+  bucket = aws_s3_bucket.secure_storage.id
+
+  rule {
+    id     = "cleanup-old-versions"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 90
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+
+  depends_on = [aws_s3_bucket_versioning.secure_storage]
+}
+
+# Deny any request that does not use TLS (encrypted in transit)
+data "aws_iam_policy_document" "secure_storage_tls" {
+  statement {
+    sid     = "DenyInsecureTransport"
+    effect  = "Deny"
+    actions = ["s3:*"]
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    resources = [
+      aws_s3_bucket.secure_storage.arn,
+      "${aws_s3_bucket.secure_storage.arn}/*",
+    ]
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "secure_storage" {
+  bucket     = aws_s3_bucket.secure_storage.id
+  policy     = data.aws_iam_policy_document.secure_storage_tls.json
+  depends_on = [aws_s3_bucket_public_access_block.secure_storage]
 }
