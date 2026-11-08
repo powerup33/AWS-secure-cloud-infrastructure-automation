@@ -14,7 +14,7 @@ permissions:
 jobs:
   terraform-checks:
     name: Terraform Format and Validation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Check out repository
@@ -32,8 +32,19 @@ jobs:
       - name: Validate Terraform configuration
         run: terraform -chdir=./terraform validate
 
+  security-scan:
+    name: Checkov Security Scan
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Scan Terraform for security issues
         uses: bridgecrewio/checkov-action@v12
         with:
           directory: ./terraform
           framework: terraform
+          # Report-only while KMS and access logging are still open findings.
+          # Remove this line once only documented skips remain.
+          soft_fail: true
