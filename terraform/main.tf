@@ -20,12 +20,12 @@ resource "aws_s3_bucket" "secure_storage" {
   #checkov:skip=CKV_AWS_18:S3 server access logging needs a dedicated log bucket. Production would enable server access logs or CloudTrail data events.
   bucket = "aws-secure-cloud-portfolio-mh-2026"
 
-tags = {
-  Name        = "AWS-secure-cloud-infrastructure-automation"
-  Environment = var.environment
-  ManagedBy   = "Terraform"
-  Purpose     = "Cloud-Security-Portfolio"
-}
+  tags = {
+    Name        = "AWS-secure-cloud-infrastructure-automation"
+    Environment = var.environment
+    ManagedBy   = "Terraform"
+    Purpose     = "Cloud-Security-Portfolio"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "secure_storage" {
