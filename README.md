@@ -94,7 +94,29 @@ The audit needs read access to IAM. The AWS-managed `SecurityAudit` policy cover
 
 ## 📸 Sample output
 
-(Add a redacted screenshot or text snippet of the audit summary here. Remove account IDs and ARNs.)
+   ```text
+   ROOT ACCOUNT
+     [HIGH] Root account does not have MFA enabled
+
+   IAM USER: portfolio-s3-readonly-test  (created 2026-10-27)
+     Access keys: 0
+     [SKIPPED] console access check: AccessDenied
+     [MEDIUM] No MFA device, and console access could not be checked
+     Attached managed policies: 1
+     Inline policies: 0
+
+   ===================================
+   AUDIT SUMMARY
+   ===================================
+   HIGH: 1
+   MEDIUM: 1
+   LOW: 0
+
+   Checks skipped (access denied or error): 1
+     - portfolio-s3-readonly-test: console access check (AccessDenied)
+   ```
+
+   The two findings are explained under Known limitations: root has no password or access keys, and an organization-level policy denies the console-access check. The script reports the denied call as skipped and keeps running.
 
 ## 🚀 Future enhancements
 
