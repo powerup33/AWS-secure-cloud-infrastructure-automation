@@ -45,6 +45,4 @@ jobs:
         with:
           directory: ./terraform
           framework: terraform
-          # Report-only while KMS and access logging are still open findings.
-          # Remove this line once only documented skips remain.
-          soft_fail: true
+          
