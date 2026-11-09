@@ -16,14 +16,16 @@ provider "aws" {
 resource "aws_s3_bucket" "secure_storage" {
   #checkov:skip=CKV_AWS_144:Lab project. Cross-region replication would double storage cost. Production would replicate to a second region.
   #checkov:skip=CKV2_AWS_62:No downstream consumer of bucket events in this project.
+  #checkov:skip=CKV_AWS_145:Bucket uses SSE-S3 (AES-256) encryption at rest. A customer-managed KMS key adds about $1/month and key management for a lab. Production would use SSE-KMS with a customer-managed key.
+  #checkov:skip=CKV_AWS_18:S3 server access logging needs a dedicated log bucket. Production would enable server access logs or CloudTrail data events.
   bucket = "aws-secure-cloud-portfolio-mh-2026"
 
-  tags = {
-    Name        = "AWS-secure-cloud-infrastructure-automation"
-    Environment = var.environment
-    ManagedBy   = "Terraform"
-    Purpose     = "Cloud-Security-Portfolio"
-  }
+tags = {
+  Name        = "AWS-secure-cloud-infrastructure-automation"
+  Environment = var.environment
+  ManagedBy   = "Terraform"
+  Purpose     = "Cloud-Security-Portfolio"
+}
 }
 
 resource "aws_s3_bucket_public_access_block" "secure_storage" {
