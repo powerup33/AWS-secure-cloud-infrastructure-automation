@@ -21,6 +21,7 @@ variable "instance_type" {
 }
 
 data "aws_availability_zones" "available" {
+  #checkov:skip=CKV_AWS_394:Lab deploys to a single AZ (names[0]); a new AZ being added does not change it
   state = "available"
 }
 
@@ -32,6 +33,8 @@ data "aws_ssm_parameter" "al2023_ami" {
 # --- Network ----------------------------------------------------------------
 
 resource "aws_vpc" "main" {
+  #checkov:skip=CKV2_AWS_11:Flow logs add ongoing cost; planned as a future enhancement
+
   cidr_block           = var.vpc_cidr
   enable_dns_support   = true
   enable_dns_hostnames = true
@@ -142,6 +145,11 @@ resource "aws_iam_instance_profile" "ssm_instance" {
 # --- EC2 instance -----------------------------------------------------------
 
 resource "aws_instance" "ssm_managed" {
+  #checkov:skip=CKV_AWS_88:Intentional. Public IP lets the instance reach SSM without a NAT gateway or VPC endpoints; the security group allows no inbound traffic
+  #checkov:skip=CKV_AWS_126:Detailed monitoring adds cost; basic 5-minute CloudWatch metrics are sufficient for this lab
+
+  ebs_optimized = true # default for t3; set explicitly
+
   ami                         = data.aws_ssm_parameter.al2023_ami.value
   instance_type               = var.instance_type
   subnet_id                   = aws_subnet.public.id

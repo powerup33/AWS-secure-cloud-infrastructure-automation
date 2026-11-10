@@ -1,7 +1,6 @@
 # ---------------------------------------------------------------------------
 # CloudTrail: multi-region audit logging with log file validation,
 # delivered to a dedicated, encrypted, TLS-only S3 bucket.
-# Plus IAM Access Analyzer for the account.
 # ---------------------------------------------------------------------------
 
 variable "trail_name" {
@@ -28,6 +27,11 @@ locals {
 # --- Log bucket -------------------------------------------------------------
 
 resource "aws_s3_bucket" "cloudtrail_logs" {
+  #checkov:skip=CKV_AWS_145:Lab cost trade-off; SSE-S3 (AES-256) encryption is enforced instead of a paid KMS key
+  #checkov:skip=CKV_AWS_18:Access logging would require a second bucket; out of scope for this lab
+  #checkov:skip=CKV_AWS_144:Cross-region replication doubles storage cost; not needed for lab logs
+  #checkov:skip=CKV2_AWS_62:No downstream consumer for S3 event notifications in this lab
+
   # Bucket names are global, so the account ID keeps this one unique
   bucket        = "${var.trail_name}-logs-${local.account_id}"
   force_destroy = true # lab setting: lets `terraform destroy` remove the bucket with logs in it
@@ -78,6 +82,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "cloudtrail_logs" {
 
     noncurrent_version_expiration {
       noncurrent_days = 30
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
     }
   }
 }
@@ -160,6 +168,10 @@ resource "aws_s3_bucket_policy" "cloudtrail_logs" {
 # --- The trail --------------------------------------------------------------
 
 resource "aws_cloudtrail" "main" {
+  #checkov:skip=CKV_AWS_35:Lab cost trade-off; logs are encrypted with SSE-S3 rather than a paid KMS CMK
+  #checkov:skip=CKV_AWS_252:No alerting pipeline in this lab, so no SNS topic is needed
+  #checkov:skip=CKV2_AWS_10:Logs are stored and reviewed in S3; CloudWatch Logs ingestion adds cost
+
   name                          = var.trail_name
   s3_bucket_name                = aws_s3_bucket.cloudtrail_logs.id
   is_multi_region_trail         = true
